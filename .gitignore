@@ -1,0 +1,18 @@
+# Build artifacts
+**/bin/
+**/obj/
+
+# Package/cache folders
+/packages/
+/.vs/
+/_ReSharper.Caches/
+
+# JetBrains / IDE files
+.idea/
+**/.idea/
+*.sln.iml
+riderModule.iml
+
+# OS files
+.DS_Store
+Thumbs.db
