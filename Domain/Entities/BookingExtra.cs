@@ -45,6 +45,8 @@ public class BookingExtra :BaseEntity
         public int BookingExtraId { get; private set; }
         public BookingExtra BookingExtra { get; private set; } = null!;
         
+        public decimal RentalDays { get; set; }
+        
         public decimal PriceAtBooking { get; private set; }
         public int Quantity { get; private set; }
      

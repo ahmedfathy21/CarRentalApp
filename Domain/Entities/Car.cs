@@ -7,7 +7,7 @@ public class Car :BaseEntity
     public string Make { get; private set; }
     public string Model { get; private set; }
     public string Color { get; private set; }
-    public string Year { get; private set; }
+    public int Year { get; private set; }
     public string LicensePlate { get; private set; }
     public string Description { get; private set; }
     public string? ImageUrl { get; private set; }
@@ -16,15 +16,15 @@ public class Car :BaseEntity
     public int Mileage { get; private set; }
     
     //FK
-    public int categoryId { get; private set; }
-    public Category? category { get; private set; } = null!;
+    public int CategoryId { get; private set; }
+    public Category? Category { get; private set; } = null!;
     public int BranchId { get; private set; }
     public Branch? Branch { get; private set; } = null!;
     
     //Navigation
     public ICollection<Booking> Bookings { get; private set; } = new List<Booking>();
     
-    private car(){ }
+    private Car(){ }
     public Car(string make, string model, int year, string licensePlate,
         string color, decimal dailyRate, int categoryId, int branchId)
     {
