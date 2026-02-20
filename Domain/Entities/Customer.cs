@@ -1,3 +1,5 @@
+using CarRentalApp.Domain.Exceptions;
+
 namespace CarRentalApp.Domain.Entities;
 
 public class Customer :BaseEntity
@@ -44,7 +46,7 @@ public class Customer :BaseEntity
     public void SetDriverLicense(string licenseNumber)
     {
         if(string.IsNullOrWhiteSpace(licenseNumber))
-            throw new ArgumentException("Driver License number is required");
+            throw new InvalidCustomerDataException("driver license number is required.");
         DriverLicens = licenseNumber;
         SetUpdatedAt();
     }
@@ -61,8 +63,8 @@ public class Customer :BaseEntity
     public void UpdateProfile(string firstName, string lastName,
         string phoneNumber, string? address)
     {
-        if (string.IsNullOrWhiteSpace(firstName)) throw new ArgumentException("First name is required.");
-        if (string.IsNullOrWhiteSpace(lastName))  throw new ArgumentException("Last name is required.");
+        if (string.IsNullOrWhiteSpace(firstName)) throw new InvalidCustomerDataException("first name is required.");
+        if (string.IsNullOrWhiteSpace(lastName))  throw new InvalidCustomerDataException("last name is required.");
 
         FirstName   = firstName;
         LastName    = lastName;
@@ -74,10 +76,10 @@ public class Customer :BaseEntity
     private static void Validate(string firstName, string lastName,
         string email, DateTime dateOfBirth)
     {
-        if (string.IsNullOrWhiteSpace(firstName))  throw new ArgumentException("First name is required.");
-        if (string.IsNullOrWhiteSpace(lastName))   throw new ArgumentException("Last name is required.");
-        if (string.IsNullOrWhiteSpace(email))      throw new ArgumentException("Email is required.");
+        if (string.IsNullOrWhiteSpace(firstName))  throw new InvalidCustomerDataException("first name is required.");
+        if (string.IsNullOrWhiteSpace(lastName))   throw new InvalidCustomerDataException("last name is required.");
+        if (string.IsNullOrWhiteSpace(email))      throw new InvalidCustomerDataException("email is required.");
         if (dateOfBirth > DateTime.UtcNow.AddYears(-18))
-            throw new ArgumentException("Customer must be at least 18 years old.");
+            throw new CustomerNotEligibleException("customer must be at least 18 years old.");
     }
 }

@@ -1,4 +1,5 @@
 using CarRentalApp.Domain.Enums;
+using CarRentalApp.Domain.Exceptions;
 
 namespace CarRentalApp.Domain.Entities;
 
@@ -44,8 +45,10 @@ public class Car :BaseEntity
 
     public void MarkAsRented()
     {
+        if (Status == CarStatus.UnderMaintenance)
+            throw new CarUnderMaintenanceException(Id);
         if (Status != CarStatus.Available)
-            throw new ArgumentException($"car is not available. Current status is {Status}");
+            throw new CarNotAvailableException(Id);
     }
     public void MarkAsAvailable()
     {
@@ -62,14 +65,14 @@ public class Car :BaseEntity
     public void UpdateMileage(int newMileage)
     {
         if(newMileage < Mileage)
-            throw new ArgumentException("new mileage cannot be less that the current mileage is ");
+            throw new InvalidMileageUpdateException(Mileage, newMileage);
         Mileage = newMileage;
         SetUpdatedAt();
     }
     public void UpdateDailyRate(decimal newRate)
     {
         if (newRate <= 0)
-            throw new ArgumentException("Daily rate must be greater than zero.");
+            throw new InvalidCarRateException(newRate);
         DailyRate = newRate;
         SetUpdatedAt();
     }
@@ -86,11 +89,11 @@ public class Car :BaseEntity
     private static void Validate(string make, string model, int year,
         string licensePlate, decimal dailyRate)
     {
-        if (string.IsNullOrWhiteSpace(make))        throw new ArgumentException("Make is required.");
-        if (string.IsNullOrWhiteSpace(model))       throw new ArgumentException("Model is required.");
+        if (string.IsNullOrWhiteSpace(make))        throw new InvalidCarDataException("make is required.");
+        if (string.IsNullOrWhiteSpace(model))       throw new InvalidCarDataException("model is required.");
         if (year < 2000 || year > DateTime.UtcNow.Year + 1)
-            throw new ArgumentException("Invalid year.");
-        if (string.IsNullOrWhiteSpace(licensePlate))throw new ArgumentException("License plate is required.");
-        if (dailyRate <= 0)                         throw new ArgumentException("Daily rate must be greater than zero.");
+            throw new InvalidCarDataException("year is out of valid range.");
+        if (string.IsNullOrWhiteSpace(licensePlate))throw new InvalidCarDataException("license plate is required.");
+        if (dailyRate <= 0)                         throw new InvalidCarDataException("daily rate must be greater than zero.");
     }
 }

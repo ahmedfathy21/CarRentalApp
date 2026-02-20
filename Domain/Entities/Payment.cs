@@ -1,4 +1,5 @@
 using CarRentalApp.Domain.Enums;
+using CarRentalApp.Domain.Exceptions;
 namespace CarRentalApp.Domain.Entities;
 
     public class Payment : BaseEntity
@@ -18,7 +19,7 @@ namespace CarRentalApp.Domain.Entities;
 
         public Payment(int bookingId, decimal amount, PaymentMethod method)
         {
-            if (amount <= 0) throw new ArgumentException("Payment amount must be greater than zero.");
+            if (amount <= 0) throw new InvalidPaymentAmountException(amount);
 
             BookingId = bookingId;
             Amount    = amount;
@@ -31,7 +32,7 @@ namespace CarRentalApp.Domain.Entities;
         public void MarkAsPaid(string? transactionId = null)
         {
             if (Status == PaymentStatus.Paid)
-                throw new InvalidOperationException("Payment is already marked as paid.");
+                throw new PaymentAlreadyProcessedException(Id);
 
             Status        = PaymentStatus.Paid;
             TransactionId = transactionId;
@@ -49,7 +50,7 @@ namespace CarRentalApp.Domain.Entities;
         public void Refund(string? reason = null)
         {
             if (Status != PaymentStatus.Paid)
-                throw new InvalidOperationException("Only paid payments can be refunded.");
+                throw new RefundNotAllowedException(Id);
 
             Status = PaymentStatus.Refunded;
             Notes  = reason;

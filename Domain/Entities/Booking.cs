@@ -1,4 +1,5 @@
 using CarRentalApp.Domain.Enums;
+using CarRentalApp.Domain.Exceptions;
 
 namespace CarRentalApp.Domain.Entities;
 
@@ -52,16 +53,16 @@ public class Booking : BaseEntity
     public void Confirm()
     {
         if (Status != BookingStatus.Pending)
-            throw new ArgumentException("Only Pending bookings can be confirmed!");
+            throw new InvalidBookingStatusTransitionException(Status.ToString(), BookingStatus.Confirmed.ToString());
         Status = BookingStatus.Confirmed;
         SetUpdatedAt();
     }
     public void Cancel(string? reason = null)
     {
         if (Status == BookingStatus.Completed)
-            throw new InvalidOperationException("Cannot cancel a completed booking.");
+            throw new BookingNotCancellableException(Id);
         if (Status == BookingStatus.Cancelled)
-            throw new InvalidOperationException("Booking is already cancelled.");
+            throw new BookingNotCancellableException(Id);
 
         Status = BookingStatus.Cancelled;
         Notes  = reason;
@@ -70,14 +71,14 @@ public class Booking : BaseEntity
     public void MarkAsActive()
     {
         if (Status != BookingStatus.Confirmed)
-            throw new InvalidOperationException("Only confirmed bookings can be activated.");
+            throw new InvalidBookingStatusTransitionException(Status.ToString(), BookingStatus.Active.ToString());
         Status = BookingStatus.Active;
         SetUpdatedAt();
     }
     public void Complete(DateTime returnDate)
     {
         if (Status != BookingStatus.Active)
-            throw new InvalidOperationException("Only active bookings can be completed.");
+            throw new InvalidBookingStatusTransitionException(Status.ToString(), BookingStatus.Completed.ToString());
 
         ActualReturnDate = returnDate;
 
@@ -94,7 +95,7 @@ public class Booking : BaseEntity
     public void AddExtra(BookingExtra.BookingExtraLine extraLine)
     {
         if (Status != BookingStatus.Pending && Status != BookingStatus.Confirmed)
-            throw new InvalidOperationException("Cannot add extras to an active or completed booking.");
+            throw new BookingModificationNotAllowedException(Id, "add extras", Status.ToString());
 
         ExtraLines.Add(extraLine);
         SetUpdatedAt();
@@ -102,9 +103,9 @@ public class Booking : BaseEntity
     public void Extend(DateTime newEndDate)
     {
         if (Status != BookingStatus.Active)
-            throw new InvalidOperationException("Only active bookings can be extended.");
+            throw new BookingModificationNotAllowedException(Id, "be extended", Status.ToString());
         if (newEndDate <= EndDate)
-            throw new ArgumentException("New end date must be after current end date.");
+            throw new InvalidBookingPeriodException("new end date must be after current end date.");
 
         EndDate     = newEndDate;
         TotalCost = CalculateBaseAmount();
@@ -125,11 +126,11 @@ public class Booking : BaseEntity
     private static void ValidateDates(DateTime start, DateTime end)
     {
         if (start.Date < DateTime.UtcNow.Date)
-            throw new ArgumentException("Start date cannot be in the past.");
+            throw new InvalidBookingPeriodException("start date cannot be in the past.");
         if (end.Date <= start.Date)
-            throw new ArgumentException("End date must be after start date.");
+            throw new InvalidBookingPeriodException("end date must be after start date.");
         if ((end - start).Days > 90)
-            throw new ArgumentException("Booking cannot exceed 90 days.");
+            throw new InvalidBookingPeriodException("booking cannot exceed 90 days.");
     }
 
     private static string GenerateBookingNumber() =>

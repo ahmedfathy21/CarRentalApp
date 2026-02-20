@@ -1,3 +1,5 @@
+using CarRentalApp.Domain.Exceptions;
+
 namespace CarRentalApp.Domain.Entities;
 
 public class BookingExtra :BaseEntity
@@ -14,8 +16,8 @@ public class BookingExtra :BaseEntity
 
     public BookingExtra(string name, string? description, decimal dailyPrice)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name cannot be null or empty");
-        if (dailyPrice <= 0) throw new ArgumentException("Daily price must be greater than zero");
+        if (string.IsNullOrWhiteSpace(name)) throw new InvalidBookingExtraDataException("name cannot be null or empty.");
+        if (dailyPrice <= 0) throw new InvalidBookingExtraDataException("daily price must be greater than zero.");
         
         Name = name;
         Description = description;
@@ -28,7 +30,7 @@ public class BookingExtra :BaseEntity
 
     public void UpdatePrice(decimal newDailyPrice)
     {
-        if (newDailyPrice < 0)  throw new ArgumentException("Daily price must be greater than zero");
+        if (newDailyPrice < 0)  throw new InvalidBookingExtraDataException("daily price must be greater than zero.");
         DailyPrice = newDailyPrice;
         SetUpdatedAt();
     }
@@ -54,8 +56,8 @@ public class BookingExtra :BaseEntity
 
         public BookingExtraLine(int bookingId, int bookingExtraId, decimal priceAtBooking, int quantity = 1)
         {
-            if (quantity < 1)           throw new ArgumentException("Quantity must be at least 1.");
-            if (priceAtBooking < 0)     throw new ArgumentException("Price cannot be negative.");
+            if (quantity < 1)           throw new InvalidBookingExtraDataException("quantity must be at least 1.");
+            if (priceAtBooking < 0)     throw new InvalidBookingExtraDataException("price cannot be negative.");
 
             BookingId       = bookingId;
             BookingExtraId  = bookingExtraId;

@@ -1,4 +1,5 @@
 using CarRentalApp.Domain.Enums;
+using CarRentalApp.Domain.Exceptions;
 namespace CarRentalApp.Domain.Entities;
 
 public class Branch :BaseEntity
@@ -16,9 +17,9 @@ public class Branch :BaseEntity
 
     public Branch(string name, string phoneNumber, string address, string city)
     {
-        if (string.IsNullOrWhiteSpace(name))    throw new ArgumentException("Branch name is required.");
-        if (string.IsNullOrWhiteSpace(address)) throw new ArgumentException("Address is required.");
-        if (string.IsNullOrWhiteSpace(city))    throw new ArgumentException("City is required.");
+        if (string.IsNullOrWhiteSpace(name))    throw new InvalidBranchDataException("branch name is required.");
+        if (string.IsNullOrWhiteSpace(address)) throw new InvalidBranchDataException("address is required.");
+        if (string.IsNullOrWhiteSpace(city))    throw new InvalidBranchDataException("city is required.");
 
         Name        = name;
         PhoneNumber = phoneNumber;

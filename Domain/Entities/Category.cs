@@ -1,3 +1,5 @@
+using CarRentalApp.Domain.Exceptions;
+
 namespace CarRentalApp.Domain.Entities;
 
 public class Category : BaseEntity
@@ -12,9 +14,9 @@ public class Category : BaseEntity
     public Category(string name ,string? description, decimal baseDailyRate)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Category Name is required");
+            throw new InvalidCategoryDataException("category name is required.");
         if(baseDailyRate <= 0)
-            throw new ArgumentException("BaseDailyRate must be greater than zero");
+            throw new InvalidCategoryDataException("base daily rate must be greater than zero.");
         Name = name;
         Description = description;
         BaseDailyRate = baseDailyRate;
@@ -23,9 +25,9 @@ public class Category : BaseEntity
     public void Update(Category category)
     {
         if(string.IsNullOrWhiteSpace(category.Name))
-            throw new ArgumentException("Category Name is reqired");
+            throw new InvalidCategoryDataException("category name is required.");
         if(category.BaseDailyRate <= 0)
-            throw new ArgumentException("BaseDailyRate must be greater than zero");
+            throw new InvalidCategoryDataException("base daily rate must be greater than zero.");
         Name = category.Name;
         Description = category.Description;
         BaseDailyRate = category.BaseDailyRate;
