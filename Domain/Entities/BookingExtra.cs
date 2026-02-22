@@ -2,35 +2,38 @@ using CarRentalApp.Domain.Exceptions;
 
 namespace CarRentalApp.Domain.Entities;
 
-public class BookingExtra :BaseEntity
+public class BookingExtra : BaseEntity
 {
     public string Name { get; private set; }
     public string? Description { get; private set; }
     public decimal DailyPrice { get; private set; }
     public bool IsAvailable { get; private set; }
-    
+
     // Navigation
-    public ICollection<BookingExtra> BookingExtraLines { get; private set;  } = new List<BookingExtra>();
-    
-    private BookingExtra() { }
+    public ICollection<BookingExtra> BookingExtraLines { get; private set; } = new List<BookingExtra>();
+
+    private BookingExtra()
+    {
+    }
 
     public BookingExtra(string name, string? description, decimal dailyPrice)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new InvalidBookingExtraDataException("name cannot be null or empty.");
+        if (string.IsNullOrWhiteSpace(name))
+            throw new InvalidBookingExtraDataException("name cannot be null or empty.");
         if (dailyPrice <= 0) throw new InvalidBookingExtraDataException("daily price must be greater than zero.");
-        
+
         Name = name;
         Description = description;
         DailyPrice = dailyPrice;
-        IsAvailable =  true;
+        IsAvailable = true;
     }
-    
+
     public void Disable() => IsAvailable = false;
-    public void Enable() =>  IsAvailable = true;
+    public void Enable() => IsAvailable = true;
 
     public void UpdatePrice(decimal newDailyPrice)
     {
-        if (newDailyPrice < 0)  throw new InvalidBookingExtraDataException("daily price must be greater than zero.");
+        if (newDailyPrice < 0) throw new InvalidBookingExtraDataException("daily price must be greater than zero.");
         DailyPrice = newDailyPrice;
         SetUpdatedAt();
     }
@@ -38,8 +41,9 @@ public class BookingExtra :BaseEntity
     /// <summary>
     /// Junction entity — which extras are attached to a specific booking, and the locked-in price.
     /// <summary/>
+}
 
-    public class BookingExtraLine
+public class BookingExtraLine
     {
         public int BookingId { get; private set; }
         public Booking Booking { get; private set; } = null!;
@@ -67,4 +71,4 @@ public class BookingExtra :BaseEntity
 
         public decimal TotalPrice => PriceAtBooking * Quantity;
     }
-}
+

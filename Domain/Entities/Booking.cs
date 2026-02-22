@@ -23,7 +23,7 @@ public class Booking : BaseEntity
     public Car Car { get; private set; } = null!;
     
     // Navigation
-    public ICollection<BookingExtra.BookingExtraLine> ExtraLines { get; private set; } = new List<BookingExtra.BookingExtraLine>();
+    public ICollection<BookingExtraLine> ExtraLines { get; private set; } = (ICollection<BookingExtraLine>)new List<BookingExtraLine>();
     public Payment? Payment { get; private set; }
     
     private Booking(){}
@@ -92,7 +92,7 @@ public class Booking : BaseEntity
         RecalculateTotalAmount();
         SetUpdatedAt();
     }
-    public void AddExtra(BookingExtra.BookingExtraLine extraLine)
+    public void AddExtra(BookingExtraLine extraLine)
     {
         if (Status != BookingStatus.Pending && Status != BookingStatus.Confirmed)
             throw new BookingModificationNotAllowedException(Id, "add extras", Status.ToString());
