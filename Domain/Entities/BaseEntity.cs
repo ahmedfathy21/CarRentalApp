@@ -3,7 +3,7 @@ namespace CarRentalApp.Domain.Entities;
 public class BaseEntity
 {
     public int Id { get; private set; }
-    public DateTime CreatedAt { get; private set; }
+    public DateTime CreatedAt { get;  set; }
     public DateTime UpdatedAt { get; private set; }
     public bool IsDeleted { get; private set; }
 
