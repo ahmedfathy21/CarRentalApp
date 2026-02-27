@@ -10,6 +10,7 @@ public class Car :BaseEntity
     public string Color { get; private set; }
     public int Year { get; private set; }
     public string LicensePlate { get; private set; }
+    
     public string Description { get; private set; }
     public string? ImageUrl { get; private set; }
     public decimal DailyRate{get ; private set;}

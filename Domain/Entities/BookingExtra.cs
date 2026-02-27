@@ -10,7 +10,8 @@ public class BookingExtra : BaseEntity
     public bool IsAvailable { get; private set; }
 
     // Navigation
-    public ICollection<BookingExtra> BookingExtraLines { get; private set; } = new List<BookingExtra>();
+    public IEnumerable<BookingExtra>? BookingExtras { get; private set; } = new List<BookingExtra>();
+    public IEnumerable<BookingExtraLine>? BookingExtraLines { get; private set; } = new List<BookingExtraLine>();
 
     private BookingExtra()
     {
@@ -68,7 +69,7 @@ public class BookingExtraLine
             PriceAtBooking  = priceAtBooking;
             Quantity        = quantity;
         }
-
+        
         public decimal TotalPrice => PriceAtBooking * Quantity;
     }
 

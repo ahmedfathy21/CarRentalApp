@@ -4,10 +4,10 @@ namespace CarRentalApp.Domain.Interfaces.Repositories;
 
 public interface ICustomerRepository :IBaseRepository<Customer>
 {
-    Task<Customer> GetByEmailAsync (string email);
-    Task<Customer> GetByNationalIdAsync (string NationalId);
-    Task<Customer> GetByUserIdAsync (string UserId);
-    Task<Customer> GetWithBookingAsync (int CustomerId);
+    Task<Customer?> GetByEmailAsync (string email);
+    Task<Customer?> GetByNationalIdAsync (string nationalId);
+    Task<Customer?> GetByUserIdAsync (string userId);
+    Task<Customer?> GetWithBookingAsync (int customerId);
 
     Task<IEnumerable<Customer>> GetBlackListedAsync();
     

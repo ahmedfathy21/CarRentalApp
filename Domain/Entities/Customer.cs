@@ -10,7 +10,7 @@ public class Customer :BaseEntity
     public string PhoneNumber { get; private set; }
     public string? Address { get; private set; }
     public string NationalId { get; private set; }
-    public string DriverLicens { get; private set; }
+    public string DriverLicense { get; private set; }
     public DateTime DateOfBirth { get; private set; }
     public bool IsBlackListed { get; private set; }
     
@@ -39,7 +39,7 @@ public class Customer :BaseEntity
     {
         if (IsBlackListed) return false;
         if (Age < 21) return false;
-        if(string.IsNullOrEmpty(DriverLicens)) return false;
+        if(string.IsNullOrEmpty(DriverLicense)) return false;
         return true;
     }
 
@@ -47,7 +47,7 @@ public class Customer :BaseEntity
     {
         if(string.IsNullOrWhiteSpace(licenseNumber))
             throw new InvalidCustomerDataException("driver license number is required.");
-        DriverLicens = licenseNumber;
+        DriverLicense = licenseNumber;
         SetUpdatedAt();
     }
     public void BlackListed()

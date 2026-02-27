@@ -8,13 +8,13 @@ public class AppDbContext : IdentityDbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     // ── DbSets — one per entity = one table in DB ─────────────────
-    public DbSet<Branch>           Branches        { get; set; }
-    public DbSet<Category>         Categories      { get; set; }
-    public DbSet<Car>              Cars            { get; set; }
-    public DbSet<Customer>         Customers       { get; set; }
-    public DbSet<Booking>          Bookings        { get; set; }
-    public DbSet<Payment>          Payments        { get; set; }
-    public DbSet<BookingExtra>     BookingExtras   { get; set; }
+    public DbSet<Branch>           Branches          { get; set; }
+    public DbSet<Category>         Categories        { get; set; }
+    public DbSet<Car>              Cars              { get; set; }
+    public DbSet<Customer>         Customers         { get; set; }
+    public DbSet<Booking>          Bookings          { get; set; }
+    public DbSet<Payment>          Payments          { get; set; }
+    public DbSet<BookingExtra>     BookingExtras     { get; set; }
     public DbSet<BookingExtraLine> BookingExtraLines { get; set; }
 
 
