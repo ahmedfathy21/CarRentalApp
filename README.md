@@ -1,197 +1,157 @@
-# 🚗 CarRentalApp
+# CarRentalApp
 
-ASP.NET Core MVC project for a car rental system built with **Clean Architecture** principles.
+CarRentalApp is an ASP.NET Core MVC project for a car-rental domain.  
+The codebase currently contains a full domain model, EF Core persistence layer, and repository abstractions/implementations, with an MVC shell UI.
 
----
+## Tech Stack
 
-## Structure
+- .NET `10.0` (`Microsoft.NET.Sdk.Web`)
+- ASP.NET Core MVC
+- Entity Framework Core `10.0.1`
+- ASP.NET Core Identity EF Core `10.0.1`
+- SQL Server provider (`Microsoft.EntityFrameworkCore.SqlServer`)
+- Stripe SDK (`Stripe.net`)
 
-- `CarRentalApp.sln` — solution file
-- `CarRentalApp/` — web application
-- `CarRentalApp/Domain/` — domain entities and enums
+## Current Project Structure
 
----
+```text
+CarRentalApp/
+├── CarRentalApp.csproj
+├── Program.cs
+├── appsettings.json
+├── appsettings.Development.json
+├── Controllers/
+│   └── HomeController.cs
+├── Domain/
+│   ├── Entities/
+│   │   ├── BaseEntity.cs
+│   │   ├── Branch.cs
+│   │   ├── Category.cs
+│   │   ├── Car.cs
+│   │   ├── Customer.cs
+│   │   ├── Booking.cs
+│   │   ├── BookingExtra.cs          (includes BookingExtraLine)
+│   │   ├── Payment.cs
+│   │   └── ErrorViewModel.cs
+│   ├── Enums/
+│   │   ├── BookingStatus.cs
+│   │   ├── Carstatus.cs
+│   │   ├── PaymentMethod.cs
+│   │   └── paymentStatus.cs
+│   ├── Exceptions/
+│   │   ├── DomainException.cs
+│   │   ├── BookingExceptions.cs
+│   │   ├── CarExceptions.cs
+│   │   ├── CustomerExceptions.cs
+│   │   ├── PaymentExceptions.cs
+│   │   ├── CategoryExceptions.cs
+│   │   ├── BranchExceptions.cs
+│   │   └── BookingExtraExceptions.cs
+│   └── Interfaces/
+│       ├── Repositories/
+│       │   ├── IBaseRepository.cs
+│       │   ├── IBookingRepository.cs
+│       │   ├── IBookingExtraRepository.cs
+│       │   ├── IBranchRepository.cs
+│       │   ├── ICarRepository.cs
+│       │   ├── ICategoryRepository.cs
+│       │   ├── ICustomerRepository.cs
+│       │   ├── IPaymentRepository.cs
+│       │   └── IUnitOfWork.cs
+│       └── Services/
+│           ├── IAvailabilityService.cs
+│           ├── IPricingService.cs
+│           └── IPaymentGateway.cs
+├── Infrastructure/
+│   ├── Persistence/
+│   │   ├── AppDbContext.cs
+│   │   └── Configuration/
+│   │       ├── BranchConfiguration.cs
+│   │       ├── CategoryConfiguration.cs
+│   │       ├── CarConfiguration.cs
+│   │       ├── CustomerConfiguration.cs
+│   │       ├── BookingConfiguration.cs
+│   │       ├── BookingExtraConfiguration.cs
+│   │       ├── BookingExtraLineConfiguration.cs
+│   │       └── PaymentConfiguration.cs
+│   └── Repositories/
+│       ├── BaseRepository.cs
+│       ├── BookingRepository.cs
+│       ├── BookingExtraRepository.cs
+│       ├── CarRepository.cs
+│       ├── CategoryRepository.cs
+│       ├── CustomerRepository.cs
+│       └── PaymentRepository.cs
+├── Views/
+│   ├── Home/
+│   ├── Shared/
+│   ├── _ViewImports.cshtml
+│   └── _ViewStart.cshtml
+└── wwwroot/
+    ├── css/
+    ├── js/
+    └── lib/
+```
+
+## Domain Model Summary
+
+Main entities:
+
+- `Branch`: physical rental branch.
+- `Category`: car grouping with base pricing.
+- `Car`: fleet car (status, pricing, mileage, branch/category links).
+- `Customer`: renter profile with eligibility/blacklist logic.
+- `Booking`: rental lifecycle (pending -> confirmed -> active -> completed/cancelled).
+- `BookingExtra`: add-ons (GPS, child seat, etc.).
+- `BookingExtraLine`: junction between booking and extra with locked booking price.
+- `Payment`: one-to-one payment per booking.
+
+Enums used by the domain:
+
+- `CarStatus`: `Available`, `Rented`, `UnderMaintenance`, `Retired`
+- `BookingStatus`: `Pending`, `Confirmed`, `Active`, `Completed`, `Cancelled`
+- `PaymentStatus`: `Pending`, `Paid`, `Refunded`, `Failed`
+- `PaymentMethod`: `Cash`, `CreditCard`, `DebitCard`, `OnlineTransfer`
+
+## Persistence and Data Access
+
+`AppDbContext` defines DbSets for all domain entities and applies:
+
+- Fluent entity configurations from `Infrastructure/Persistence/Configuration`
+- Global query filters for soft delete (`IsDeleted`)
+- Audit field handling (`CreatedAt`, `UpdatedAt`) inside `SaveChanges` overrides
+
+Repository implementations currently available:
+
+- Generic base CRUD/query repository (`BaseRepository<T>`)
+- Booking, car, customer, payment, category, and booking-extra repositories
+- Specialized queries (availability, overlap checks, status/date range filtering, etc.)
+
+## Current Application Wiring
+
+`Program.cs` currently wires:
+
+- MVC (`AddControllersWithViews`)
+- static assets mapping
+- default route (`Home/Index`)
+
+`AppDbContext`, Identity, and repository DI registrations are not yet added in `Program.cs`.
 
 ## Run Locally
+
+From this folder (`CarRentalApp/CarRentalApp`):
 
 ```bash
 dotnet restore
 dotnet build
-dotnet run --project CarRentalApp/CarRentalApp.csproj
+dotnet run
 ```
 
-Then open `https://localhost:5001` (or the URL shown in terminal).
+Then open the URL printed in the terminal.
 
----
+## Suggested Next Steps
 
-## Domain Layer Architecture
-
-### Entity Relationship Overview
-
-```
-                          ┌─────────────────────┐
-                          │      BaseEntity      │  ← BASE
-                          │─────────────────────│
-                          │ 🔑 Id         int   │
-                          │  CreatedAt  DateTime │
-                          │  UpdatedAt  DateTime?│
-                          │  IsDeleted  bool     │
-                          └──────────┬──────────┘
-                                     │ (all entities inherit)
-              ┌──────────────────────┼─────────────────────────┐
-              │                      │                         │
-   ┌──────────▼──────┐   ┌──────────▼──────┐    ┌────────────▼────────┐
-   │     Branch      │   │    Category     │    │      Customer       │  ← ENTITY
-   │─────────────────│   │─────────────────│    │────────────────────-│
-   │ 🔑 Id           │   │ 🔑 Id           │    │ 🔑 Id               │
-   │  Name           │   │  Name           │    │  FirstName/LastName │
-   │  PhoneNumber    │   │  Description    │    │  Email              │
-   │  Address        │   │  BaseDailyRate  │    │  PhoneNumber        │
-   │  City           │   │─────────────────│    │  NationalId         │
-   │  IsActive       │   │  ↳ Cars         │    │  DriverLicense      │
-   │─────────────────│   └────────┬────────┘    │  DateOfBirth        │
-   │  ↳ Cars         │            │             │  IsBlacklisted      │
-   └────────┬────────┘            │             │  🔗 UserId          │
-            │                     │             │─────────────────────│
-            │         ┌───────────▼─────────────│  ↳ Bookings         │
-            │         │                         └──────────┬──────────┘
-            │    ┌────▼────────────────────┐              │
-            └───►│          Car            │  ← ENTITY    │
-                 │─────────────────────────│              │
-                 │ 🔑 Id                   │              │
-                 │  Make / Model           │              │
-                 │  Year                   │              │
-                 │  LicensePlate           │              │
-                 │  Color / Seats          │              │
-                 │  DailyRate              │              │
-                 │  Mileage                │              │
-                 │  🔗 CategoryId          │              │
-                 │  🔗 BranchId            │              │
-                 │  Status → [CarStatus]   │              │
-                 │─────────────────────────│              │
-                 │  ↳ Bookings             │              │
-                 └────────────┬────────────┘              │
-                              │                           │
-                              └──────────┬────────────────┘
-                                         │
-                           ┌─────────────▼───────────────┐
-                           │         Booking              │  ← AGGREGATE ROOT
-                           │─────────────────────────────│
-                           │ 🔑 Id                        │
-                           │  BookingNumber               │
-                           │  StartDate / EndDate         │
-                           │  ActualReturnDate            │
-                           │  CarDailyRate                │
-                           │  TotalAmount                 │
-                           │  LateFee                     │
-                           │  Status → [BookingStatus]    │
-                           │  🔗 CarId                    │
-                           │  🔗 CustomerId               │
-                           │─────────────────────────────│
-                           │  ↳ ExtraLines                │
-                           │  ↳ Payment                   │
-                           └──────────┬──────────────────┘
-                                      │
-                    ┌─────────────────┼──────────────────┐
-                    │                                     │
-       ┌────────────▼────────────┐         ┌─────────────▼──────────┐
-       │    BookingExtraLine     │         │        Payment          │  ← ENTITY
-       │  ── JUNCTION ──────────│         │────────────────────────-│
-       │  🔗 BookingId           │         │ 🔑 Id                   │
-       │  🔗 BookingExtraId      │         │  Amount                 │
-       │  PriceAtBooking         │         │  Status → [PaymentStatus│
-       │  Quantity               │         │  Method → [PaymentMethod│
-       │  TotalPrice (computed)  │         │  TransactionId          │
-       └────────────┬────────────┘         │  PaidAt                 │
-                    │                      │  🔗 BookingId           │
-       ┌────────────▼────────────┐         └─────────────────────────┘
-       │      BookingExtra       │  ← ENTITY
-       │─────────────────────────│
-       │ 🔑 Id                   │
-       │  Name                   │
-       │  Description            │
-       │  DailyPrice             │
-       │  IsAvailable            │
-       │─────────────────────────│
-       │  ↳ ExtraLines           │
-       └─────────────────────────┘
-```
-
----
-
-### Enums
-
-```
-CarStatus                   BookingStatus
-──────────────────          ──────────────────────
-1  Available                1  Pending
-2  Rented                   2  Confirmed
-3  UnderMaintenance         3  Active
-4  Retired                  4  Completed
-                            5  Cancelled
-
-PaymentStatus               PaymentMethod
-──────────────────          ──────────────────────
-1  Pending                  1  Cash
-2  Paid                     2  CreditCard
-3  Refunded                 3  DebitCard
-4  Failed                   4  OnlineTransfer
-```
-
----
-
-### Relationships
-
-| From | Relationship | To |
-|---|---|---|
-| `Branch` | 1 → N | `Car` |
-| `Category` | 1 → N | `Car` |
-| `Car` | 1 → N | `Booking` |
-| `Customer` | 1 → N | `Booking` |
-| `Booking` | 1 → 1 | `Payment` |
-| `Booking` ↔ `BookingExtra` | M → N | via `BookingExtraLine` |
-| All entities | inherit | `BaseEntity` |
-
----
-
-### Key Business Rules
-
-| Rule | Detail |
-|---|---|
-| Car availability | Car must have `CarStatus.Available` to be booked |
-| Customer eligibility | Must be 21+ with a valid driver's license |
-| Blacklist check | Blacklisted customers cannot create bookings |
-| Max booking duration | 90 days maximum per booking |
-| Late return fee | Extra days charged at **1.5×** the daily rate |
-| Price snapshot | `PriceAtBooking` on `BookingExtraLine` locks the price at booking time |
-| Soft delete | All entities support soft delete via `IsDeleted` on `BaseEntity` |
-
----
-
-### Aggregate Roots
-
-`Booking` is the main **Aggregate Root** in this domain. You never modify `BookingExtraLine` or `Payment` directly — all changes go through `Booking`:
-
-```csharp
-// ✅ Correct — through the aggregate root
-booking.AddExtra(extraLine);
-booking.Confirm();
-booking.Complete(returnDate);
-
-// ❌ Wrong — bypassing the root
-dbContext.BookingExtraLines.Add(line);
-```
-
----
-
-## Architecture Layers
-
-```
-CarRentalApp.Web           ← Controllers, Views, ViewModels
-       ↓
-CarRentalApp.Application   ← Services, DTOs, Validators
-       ↓
-CarRentalApp.Domain        ← Entities, Enums, Interfaces (no dependencies)
-       ↑
-CarRentalApp.Infrastructure ← EF Core, Repositories, External Services
-```
+- Add connection string(s) in `appsettings*.json`
+- Register `AppDbContext` and repositories in DI
+- Add EF Core migrations and update the database
+- Add controllers/use-cases for cars, bookings, customers, and payments
