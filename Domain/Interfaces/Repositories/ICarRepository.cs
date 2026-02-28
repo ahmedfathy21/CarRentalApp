@@ -6,7 +6,7 @@ namespace CarRentalApp.Domain.Interfaces.Repositories;
 public interface ICarRepository : IBaseRepository<Car>
 {
     // Quires 
-    Task<Car?> GetByLicesnsePlateAsync (string licensePlate);
+    Task  <Car?> GetByLicesnsePlateAsync (string licensePlate);
     Task<Car?> GetWithCategoryAsync (int CarId);
     Task<Car?> GetWithBookingAsync (int branchId);
 
