@@ -32,6 +32,10 @@ public class Customer :BaseEntity
         NationalId = nationalId;
         DateOfBirth = dateOfBirth;
     }
+
+   
+
+
     public string FullName => $"{FirstName} {LastName}";
     public int Age => DateTime.Now.Year - DateOfBirth.Year;
 
